@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unity Guide - Game Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Fredoka',sans-serif;
+  background:linear-gradient(#4ec7ff,#87f56b);
+  min-height:100vh;
+  color:#1b1b1b;
+  /* Variables pour le contenu pédagogique */
+  --color-info: #0C447C;
+  --bg-info: #E6F1FB;
+  --color-warn: #854F0B;
+  --bg-warn: #FAEEDA;
+  --color-success: #0F6E56;
+  --bg-success: #E1F5EE;
+  --color-code-bg: #2C2C2A;
+  --color-code-text: #D3D1C7;
+}
+.container{max-width:950px;margin:auto;padding:20px}
+
+/* HUD */
+.hud{
+  background:#fff;border-radius:20px;padding:15px 20px;margin-bottom:15px;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 8px 0 #c9c9c9;
+}
+.title{font-family:'Press Start 2P';font-size:14px}
+.hearts{font-size:22px}
+.xpbar{height:12px;background:#eee;border-radius:20px;overflow:hidden;width:200px}
+.xp{height:100%;background:linear-gradient(90deg,#ffd93d,#ff7a00)}
+
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.tab{
+ background:#fff;padding:10px 18px;border-radius:14px;
+ box-shadow:0 6px 0 #c9c9c9;cursor:pointer;font-weight:600
+}
+.tab.active{background:#ff6b6b;color:#fff;box-shadow:0 6px 0 #c94a4a}
+
+.card{
+ background:#fff;border-radius:20px;padding:20px;margin-top:10px;
+ box-shadow:0 10px 0 #c9c9c9;
+}
+.stepTitle{font-family:'Press Start 2P';font-size:13px;margin-bottom:10px}
+.stepSubtitle{font-size:16px; font-weight:600; color:#666; margin-bottom:15px; display:block;}
+
+/* Styles pédagogiques adaptés */
+.tip-box, .warn-box, .success-box {
+  padding: 15px; border-radius: 12px; margin: 15px 0; font-size: 14px; border-left: 6px solid;
+}
+.tip-box { background: var(--bg-info); color: var(--color-info); border-color: var(--color-info); }
+.warn-box { background: var(--bg-warn); color: var(--color-warn); border-color: var(--color-warn); }
+.success-box { background: var(--bg-success); color: var(--color-success); border-color: var(--color-success); }
+
+.code-block {
+  background: var(--color-code-bg); color: var(--color-code-text);
+  padding: 15px; border-radius: 12px; font-family: 'Courier New', monospace;
+  font-size: 13px; margin: 15px 0; overflow-x: auto; white-space: pre; line-height: 1.5;
+  box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
+}
+.code-keyword { color: #85B7EB; }
+.code-comment { color: #6A9955; }
+.code-string { color: #CE9178; }
+
+.steps-list { list-style: none; margin: 15px 0; }
+.steps-list li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; font-size: 14px; }
+.steps-list .num { 
+  width: 24px; height: 24px; border-radius: 50%; background: #ff6b6b; color: #fff; 
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;
+}
+
+.ui-mock { background: #333; border-radius: 10px; padding: 12px; color: #eee; margin: 10px 0; font-family: monospace; font-size: 12px; }
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+.feature-card { background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
+.feature-card span { display: block; font-size: 11px; color: #888; }
+.visual-diagram { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 10px; margin: 15px 0; }
+
+.nav{display:flex;justify-content:space-between;margin-top:20px}
+.btn{
+ background:#ffd93d;border:none;padding:12px 18px;border-radius:14px;
+ box-shadow:0 6px 0 #c9a600;font-weight:600;cursor:pointer
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a600}
+.btn:disabled{background:#e0e0e0; box-shadow:0 6px 0 #bdbdbd; cursor:not-allowed;}
+
+.star{font-size:22px}
+.center{text-align:center;margin-top:10px}
+.explain { font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
+.bold { font-weight: 600; color: #000; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="hud">
+  <div class="title">UNITY QUEST BY BABLY </div>
+  <div class="hearts" id="hearts">❤️❤️❤️</div>
+  <div class="xpbar"><div class="xp" id="xp"></div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchGame('install')">⚙️ Installation</div>
+  <div class="tab" onclick="switchGame('flappy')">🐦 Flappy Bird</div>
+  <div class="tab" onclick="switchGame('snake')">Snake</div>
+  <div class="tab" onclick="switchGame('bounce')">Bounce</div>
+</div>
+
+<div class="card">
+  <div class="stepTitle" id="title"></div>
+  <div id="content"></div>
+  <div class="center star" id="reward"></div>
+
+  <div class="nav">
+    <button class="btn" id="btnPrev" onclick="prevStep()">⬅ Etape précédente</button>
+    <button class="btn" id="btnNext" onclick="nextStep()">Etape suivante ➡</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// progression sauvegardée
+let progress = JSON.parse(localStorage.getItem('unityProgress')) || {game:'install',step:0,xp:0,life:3}
+
+const games={
+ install: [
+    { 
+      title: "Télécharger Unity Hub", 
+      subtitle: "Le programme principal pour gérer Unity", 
+      content: `<p class="explain">Unity Hub est une application qui te permet d'installer et de gérer toutes tes versions de Unity. C'est la <span class="bold">première chose à installer</span>.</p>
+      <div class="tip-box">Rends-toi sur <strong>unity.com/download</strong> et clique sur le bouton vert "Télécharger Unity Hub". C'est gratuit !</div>
+      <div class="ui-mock">🌐 unity.com<br><span style="color:#87f56b">⬇ Télécharger Unity Hub — Gratuit</span></div>
+      <ul class="steps-list">
+        <li><span class="num">1.1</span><span>Ouvre le fichier téléchargé (UnityHubSetup.exe sur Windows / UnityHub.dmg sur Mac)</span></li>
+        <li><span class="num">1.2</span><span>Clique sur "Suivant" jusqu'à la fin de l'installation</span></li>
+        <li><span class="num">1.3</span><span>Lance Unity Hub depuis ton bureau</span></li>
+      </ul>
+      <div class="warn-box">Si Windows demande "Autoriser l'application à modifier ?" → clique <strong>Oui</strong>. C'est normal et sûr.</div>` 
+    },
+    { 
+      title: "Créer un compte Unity (gratuit)", 
+      subtitle: "Nécessaire pour activer la licence personnelle", 
+      content: `<p class="explain">Unity nécessite un compte pour fonctionner. La version <span class="bold">Personal</span> est entièrement gratuite si tu gagnes moins de 100 000$ par an avec tes jeux (ce qui est notre cas !)</p>
+      <ul class="steps-list">
+        <li><span class="num">2.1</span><span>Dans Unity Hub, clique sur <strong>"Sign in"</strong> en haut à droite</span></li>
+        <li><span class="num">2.2</span><span>Clique sur <strong>"Create account"</strong></span></li>
+        <li><span class="num">2.3</span><span>Remplis le formulaire avec ton email et un mot de passe</span></li>
+        <li><span class="num">2.4</span><span>Vérifie ton email et clique sur le lien de confirmation</span></li>
+        <li><span class="num">2.5</span><span>Retourne dans Unity Hub et connecte-toi</span></li>
+      </ul>
+      <div class="success-box">Quand tu vois ton avatar en haut à droite de Unity Hub → tu es connecté !</div>` 
+    },
+    { 
+      title: "Installer Unity Editor", 
+      subtitle: "Le logiciel où l'on crée les jeux", 
+      content: `<p class="explain">Unity Editor est le vrai logiciel de création de jeux. On l'installe depuis Unity Hub.</p>
+      <ul class="steps-list">
+        <li><span class="num">3.1</span><span>Dans Unity Hub, clique sur <strong>"Installs"</strong> dans le menu gauche</span></li>
+        <li><span class="num">3.2</span><span>Clique sur le bouton <strong>"Install Editor"</strong></span></li>
+        <li><span class="num">3.3</span><span>Sélectionne la version <strong>LTS recommandée</strong> (c'est la plus stable)</span></li>
+        <li><span class="num">3.4</span><span>Coche <strong>"Windows Build Support"</strong> (ou Mac selon ton système)</span></li>
+        <li><span class="num">3.5</span><span>Clique <strong>"Install"</strong> et patiente (ça peut prendre 15-30 minutes)</span></li>
+      </ul>
+      <div class="feature-grid">
+        <div class="feature-card"><span>Taille à télécharger</span>~3-5 Go</div>
+        <div class="feature-card"><span>Durée d'installation</span>15-30 minutes</div>
+        <div class="feature-card"><span>RAM recommandée</span>8 Go minimum</div>
+        <div class="feature-card"><span>Espace disque</span>10 Go libre</div>
+      </div>
+      <div class="tip-box">Tu peux continuer à utiliser ton ordinateur pendant l'installation. Une barre de progression s'affiche dans Unity Hub.</div>` 
+    },
+    { 
+      title: "Créer ton premier projet", 
+      subtitle: "La base de chaque jeu que tu feras", 
+      content: `<p class="explain">Chaque jeu = un projet Unity. Voici comment en créer un :</p>
+      <ul class="steps-list">
+        <li><span class="num">4.1</span><span>Dans Unity Hub, clique sur <strong>"Projects"</strong> puis <strong>"New project"</strong></span></li>
+        <li><span class="num">4.2</span><span>Sélectionne le template <strong>"2D (URP)"</strong></span></li>
+        <li><span class="num">4.3</span><span>Donne un nom à ton projet (ex: <em>FlappyBird</em>)</span></li>
+        <li><span class="num">4.4</span><span>Choisis un dossier pour le sauvegarder</span></li>
+        <li><span class="num">4.5</span><span>Clique sur <strong>"Create project"</strong></span></li>
+      </ul>
+      <div class="ui-mock">
+        <strong>Structure du projet Unity</strong><br>
+        📁 Assets<br>
+        &nbsp;&nbsp;📁 Scripts<br>
+        &nbsp;&nbsp;📁 Sprites<br>
+        &nbsp;&nbsp;📁 Scenes<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;🎬 SampleScene.unity
+      </div>
+      <div class="success-box">L'éditeur Unity s'ouvre automatiquement ! Tu es prêt à créer ton premier jeu.</div>` 
+    },
+    { 
+      title: "Comprendre l'interface Unity", 
+      subtitle: "Les 5 zones essentielles à connaître", 
+      content: `<p class="explain">L'interface de Unity peut sembler complexe au premier abord. Voici les <span class="bold">5 zones que tu utiliseras tout le temps</span> :</p>
+      <div class="visual-diagram">
+        <svg viewBox="0 0 580 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect x="4" y="4" width="120" height="312" rx="4" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+          <text x="64" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#042C53">Hierarchy</text>
+          <rect x="132" y="4" width="240" height="200" rx="4" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1"/>
+          <text x="252" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#04342C">Scene View</text>
+          <rect x="132" y="212" width="240" height="104" rx="4" fill="#C0DD97" stroke="#3B6D11" stroke-width="1"/>
+          <text x="252" y="232" text-anchor="middle" font-size="11" font-weight="500" fill="#173404">Game View</text>
+          <rect x="380" y="4" width="196" height="200" rx="4" fill="#F5C4B3" stroke="#D85A30" stroke-width="1"/>
+          <text x="478" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#4A1B0C">Inspector</text>
+          <rect x="380" y="212" width="196" height="104" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+          <text x="478" y="232" text-anchor="middle" font-size="11" font-weight="500" fill="#26215C">Project</text>
+        </svg>
+      </div>
+      <div class="tip-box">Si tu fermes accidentellement une fenêtre, va dans le menu <strong>Window → Layouts → Default</strong> pour tout réinitialiser.</div>` 
+    }
+ ],
+ flappy: [
+    { 
+      title: "Créer le projet Flappy Bird", 
+      subtitle: "Préparer l'environnement de jeu", 
+      content: `<p class="explain">Commence par créer un nouveau projet Unity en 2D. Rappelle-toi : <span class="bold">Unity Hub → New Project → 2D (URP)</span>, nomme-le <em>FlappyBird</em>.</p>
+      <div class="tip-box">Flappy Bird utilise la 2D : l'oiseau vole à l'écran et passe entre des tuyaux. C'est un jeu parfait pour débuter !</div>
+      <p class="explain" style="margin-top:10px;">Une fois le projet ouvert, on va d'abord <span class="bold">préparer notre scène</span> :</p>
+      <ul class="steps-list">
+        <li><span class="num">1.1</span><span>Dans la Hierarchy (à gauche), fais clic droit → <strong>2D Object → Sprite → Square</strong></span></li>
+        <li><span class="num">1.2</span><span>Renomme cet objet <strong>"Oiseau"</strong> (double-clic sur le nom)</span></li>
+        <li><span class="num">1.3</span><span>Dans l'Inspector (à droite), change la couleur du sprite en <strong>jaune</strong></span></li>
+        <li><span class="num">1.4</span><span>Mets la position à <strong>X=-3, Y=0, Z=0</strong></span></li>
+      </ul>` 
+    },
+    { 
+      title: "Ajouter la physique à l'oiseau", 
+      subtitle: "Le rendre soumis à la gravité", 
+      content: `<p class="explain">En vrai, Unity a un moteur physique intégré. Pour que l'oiseau tombe et saute, on ajoute un composant <span class="bold">Rigidbody2D</span>.</p>
+      <ul class="steps-list">
+        <li><span class="num">2.1</span><span>Clique sur <strong>"Oiseau"</strong> dans la Hierarchy</span></li>
+        <li><span class="num">2.2</span><span>Dans l'Inspector, clique sur <strong>"Add Component"</strong></span></li>
+        <li><span class="num">2.3</span><span>Tape <strong>"Rigidbody 2D"</strong> et appuie sur Entrée</span></li>
+        <li><span class="num">2.4</span><span>Dans le Rigidbody2D, mets <strong>Gravity Scale = 2</strong> (gravité plus forte)</span></li>
+        <li><span class="num">2.5</span><span>Ajoute aussi un <strong>BoxCollider2D</strong> (pour les collisions)</span></li>
+      </ul>
+      <div class="warn-box">Dans "Constraints" du Rigidbody2D, coche <strong>"Freeze Rotation Z"</strong> pour que l'oiseau ne tourne pas sur lui-même.</div>` 
+    },
+    { 
+      title: "Créer le script de l'oiseau", 
+      subtitle: "Coder le saut avec la touche espace", 
+      content: `<p class="explain">Un <span class="bold">script</span> est un fichier de code qui donne des instructions à un objet. On va créer le comportement de l'oiseau en C#.</p>
+      <ul class="steps-list">
+        <li><span class="num">3.1</span><span>Fais clic droit dans le dossier <strong>Assets → Scripts</strong> (crée le dossier si nécessaire)</span></li>
+        <li><span class="num">3.2</span><span>Crée un script C# nommé <strong>"BirdController"</strong></span></li>
+        <li><span class="num">3.3</span><span>Double-clique pour l'ouvrir dans <strong>Visual Studio</strong></span></li>
+        <li><span class="num">3.4</span><span>Remplace tout le contenu par ce code :</span></li>
+      </ul>
+      <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">BirdController</span> : MonoBehaviour
+{
+    <span class="code-comment">// Force du saut — modifiable dans l'Inspector</span>
+    <span class="code-keyword">public float</span> jumpForce = <span class="code-string">5f</span>;
+    
+    <span class="code-comment">// La physique de l'oiseau</span>
+    <span class="code-keyword">private</span> <span class="code-type">Rigidbody2D</span> rb;
+    <span class="code-keyword">private bool</span> estMort = <span class="code-keyword">false</span>;
+
+    <span class="code-keyword">void</span> Start()
+    {
+        <span class="code-comment">// Récupère le composant Rigidbody2D</span>
+        rb = GetComponent&lt;<span class="code-type">Rigidbody2D</span>&gt;();
+    }
+
+    <span class="code-keyword">void</span> Update()
+    {
+        <span class="code-comment">// Si on appuie sur Espace et que l'oiseau est vivant</span>
+        <span class="code-keyword">if</span> (Input.GetKeyDown(KeyCode.Space) && !estMort)
+        {
+            <span class="code-comment">// Remet la vélocité à zéro, puis applique une force vers le haut</span>
+            rb.linearVelocity = <span class="code-type">Vector2</span>.zero;
+            rb.AddForce(<span class="code-type">Vector2</span>.up * jumpForce, <span class="code-type">ForceMode2D</span>.Impulse);
+        }
+    }
+
+    <span class="code-comment">// Cette fonction est appelée quand l'oiseau touche quelque chose</span>
+    <span class="code-keyword">void</span> OnCollisionEnter2D(<span class="code-type">Collision2D</span> collision)
+    {
+        estMort = <span class="code-keyword">true</span>;
+        <span class="code-comment">// Game Over !</span>
+        Debug.Log(<span class="code-string">"Game Over !"</span>);
+    }
+}</div>
+      <ul class="steps-list" style="margin-top:12px;">
+        <li><span class="num">3.5</span><span>Sauvegarde avec <strong>Ctrl+S</strong></span></li>
+        <li><span class="num">3.6</span><span>Glisse ce script sur l'objet <strong>"Oiseau"</strong> dans la Hierarchy</span></li>
+      </ul>
+      <div class="success-box">Appuie sur ▶ (Play) dans Unity et teste ! L'oiseau doit tomber et sauter quand tu appuies sur Espace.</div>` 
+    },
+    { 
+      title: "Créer les tuyaux obstacles", 
+      subtitle: "Les paires de tuyaux qui se déplacent", 
+      content: `<p class="explain">Les tuyaux sont des rectangles verts qui arrivent de droite en gauche. On va créer un <span class="bold">Prefab</span> (un modèle réutilisable) de paire de tuyaux.</p>
+      <ul class="steps-list">
+        <li><span class="num">4.1</span><span>Crée un objet vide : clic droit Hierarchy → <strong>Create Empty</strong>, nomme-le <strong>"Tuyau"</strong></span></li>
+        <li><span class="num">4.2</span><span>À l'intérieur, ajoute 2 sprites rectangles : <strong>TuyauHaut</strong> et <strong>TuyauBas</strong> (couleur verte)</span></li>
+        <li><span class="num">4.3</span><span>TuyauHaut : Position Y = <strong>+4</strong>, Scale Y = <strong>5</strong></span></li>
+        <li><span class="num">4.4</span><span>TuyauBas : Position Y = <strong>-4</strong>, Scale Y = <strong>5</strong></span></li>
+        <li><span class="num">4.5</span><span>Crée un dossier <strong>Prefabs</strong> dans Assets et glisse l'objet "Tuyau" dedans</span></li>
+      </ul>
+      <p class="explain" style="margin-top:10px;">Crée maintenant un script <strong>"PipeMover"</strong> :</p>
+      <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">PipeMover</span> : MonoBehaviour
+{
+    <span class="code-keyword">public float</span> speed = <span class="code-string">3f</span>;
+
+    <span class="code-keyword">void</span> Update()
+    {
+        <span class="code-comment">// Déplace le tuyau vers la gauche</span>
+        transform.Translate(<span class="code-type">Vector2</span>.left * speed * Time.deltaTime);
+
+        <span class="code-comment">// Supprime le tuyau quand il sort de l'écran</span>
+        <span class="code-keyword">if</span> (transform.position.x &lt; -<span class="code-string">12f</span>)
+        {
+            Destroy(gameObject);
+        }
+    }
+}</div>` 
+    },
+    { 
+      title: "Faire spawner les tuyaux automatiquement", 
+      subtitle: "Un générateur qui crée des tuyaux en boucle", 
+      content: `<p class="explain">On a besoin d'un objet qui génère des tuyaux régulièrement, avec une hauteur aléatoire pour que chaque partie soit différente.</p>
+      <ul class="steps-list">
+        <li><span class="num">5.1</span><span>Crée un objet vide nommé <strong>"TuyauGenerateur"</strong>, place-le à <strong>X=10</strong></span></li>
+        <li><span class="num">5.2</span><span>Crée et attache le script <strong>"PipeSpawner"</strong> :</span></li>
+      </ul>
+      <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">PipeSpawner</span> : MonoBehaviour
+{
+    <span class="code-keyword">public</span> <span class="code-type">GameObject</span> tuyauPrefab;
+    <span class="code-keyword">public float</span> tempsEntreChaque = <span class="code-string">2f</span>;
+    <span class="code-keyword">private float</span> timer = <span class="code-string">0f</span>;
+
+    <span class="code-keyword">void</span> Update()
+    {
+        timer += Time.deltaTime;
+        
+        <span class="code-keyword">if</span> (timer &gt;= tempsEntreChaque)
+        {
+            timer = <span class="code-string">0f</span>;
+            <span class="code-comment">// Position Y aléatoire pour varier la hauteur du passage</span>
+            <span class="code-keyword">float</span> hauteurAleatoire = Random.Range(-<span class="code-string">-2f</span>, <span class="code-string">2f</span>);
+            <span class="code-type">Vector3</span> pos = <span class="code-keyword">new</span> <span class="code-type">Vector3</span>(<span class="code-string">10f</span>, hauteurAleatoire, <span class="code-string">0</span>);
+            Instantiate(tuyauPrefab, pos, <span class="code-type">Quaternion</span>.identity);
+        }
+    }
+}</div>
+      <ul class="steps-list" style="margin-top:8px;">
+        <li><span class="num">5.3</span><span>Dans l'Inspector du TuyauGenerateur, glisse le Prefab "Tuyau" dans le champ <strong>tuyauPrefab</strong></span></li>
+      </ul>
+      <div class="success-box">Appuie sur ▶ et teste ! Des tuyaux doivent apparaître et défiler. Flappy Bird est fonctionnel !</div>
+      <div class="tip-box">Pour aller plus loin : ajoute un score avec un Text UI (Window → UI → Text - TextMeshPro) et une scène de Game Over.</div>` 
+    }
+ ],
+ snake: [
+    { 
+      title: "Créer le projet Snake", 
+      subtitle: "Nouveau projet 2D pour le jeu Snake", 
+      content: `<p class="explain">Le Snake est un jeu où un serpent grandit en mangeant de la nourriture. On travaille sur une <span class="bold">grille</span> avec des mouvements case par case.</p>
+      <div class="tip-box">Crée un nouveau projet Unity 2D nommé <strong>"Snake"</strong>. Cette fois, on va travailler sur une grille invisible.</div>
+      <p class="explain" style="margin-top:10px;">D'abord, préparons la grille visuelle :</p>
+      <ul class="steps-list">
+        <li><span class="num">1.1</span><span>Sélectionne la <strong>Main Camera</strong> dans la Hierarchy</span></li>
+        <li><span class="num">1.2</span><span>Dans l'Inspector, change la couleur d'arrière-plan en <strong>noir</strong></span></li>
+        <li><span class="num">1.3</span><span>Mets la caméra en <strong>Orthographic</strong> (pas Perspective) et Size = <strong>10</strong></span></li>
+      </ul>
+      <div class="visual-diagram">
+        <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect width="300" height="180" fill="#2C2C2A" rx="6"/>
+          <text x="150" y="20" text-anchor="middle" font-size="11" fill="#888780">Grille du jeu Snake (20x20)</text>
+          <g stroke="#444441" stroke-width="0.5" opacity="0.6">
+            <line x1="20" y1="30" x2="280" y2="30"/><line x1="20" y1="43" x2="280" y2="43"/><line x1="20" y1="56" x2="280" y2="56"/><line x1="20" y1="69" x2="280" y2="69"/><line x1="20" y1="82" x2="280" y2="82"/>
+            <line x1="20" y1="30" x2="20" y2="165"/><line x1="46" y1="30" x2="46" y2="165"/><line x1="72" y1="30" x2="72" y2="165"/><line x1="98" y1="30" x2="98" y2="165"/>
+          </g>
+          <rect x="99" y="57" width="24" height="12" rx="3" fill="#1D9E75"/><circle cx="215" cy="89" r="7" fill="#D85A30"/>
+          <text x="150" y="175" text-anchor="middle" font-size="10" fill="#5F5E5A">Tête (claire) → corps (vert) → nourriture (rouge)</text>
+        </svg>
+      </div>` 
+    },
+    { 
+      title: "Créer le serpent", 
+      subtitle: "Un objet carré qui représente la tête", 
+      content: `<p class="explain">La <span class="bold">tête du serpent</span> est un simple carré vert. Le corps sera une liste de carrés qui suivront la tête.</p>
+      <ul class="steps-list">
+        <li><span class="num">2.1</span><span>Clic droit Hierarchy → <strong>2D Object → Sprite → Square</strong></span></li>
+        <li><span class="num">2.2</span><span>Nommez-le <strong>"SnakeHead"</strong></span></li>
+        <li><span class="num">2.3</span><span>Dans l'Inspector, mets la couleur en <strong>vert clair</strong></span></li>
+        <li><span class="num">2.4</span><span>Scale = <strong>X:0.9, Y:0.9</strong> (un peu plus petit que 1 pour voir la grille)</span></li>
+        <li><span class="num">2.5</span><span>Crée un <strong>Prefab</strong> de ce carré pour les segments du corps</span></li>
+      </ul>` 
+    },
+    { 
+      title: "Script principal du Snake", 
+      subtitle: "Le cœur du jeu : déplacement et croissance", 
+      content: `<p class="explain">Ce script gère tout : le mouvement case par case, les touches directionnelles, et la croissance du serpent quand il mange.</p>
+      <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+<span class="code-keyword">using</span> System.Collections.Generic;
+
+<span class="code-keyword">public class</span> <span class="code-type">SnakeController</span> : MonoBehaviour
+{
+    <span class="code-keyword">public float</span> vitesseMouvement = <span class="code-string">0.2f</span>; <span class="code-comment">// secondes entre chaque pas</span>
+    <span class="code-keyword">public</span> <span class="code-type">GameObject</span> segmentPrefab; <span class="code-comment">// Le prefab de segment</span>
+    
+    <span class="code-keyword">private</span> <span class="code-type">Vector2</span> direction = <span class="code-type">Vector2</span>.right; <span class="code-comment">// Direction actuelle</span>
+    <span class="code-keyword">private</span> List&lt;<span class="code-type">Transform</span>&gt; segments = <span class="code-keyword">new</span> List&lt;<span class="code-type">Transform</span>&gt;();
+    <span class="code-keyword">private float</span> timer = <span class="code-string">0f</span>;
+
+    <span class="code-keyword">void</span> Start()
+    {
+        segments.Add(transform); <span class="code-comment">// La tête est le premier segment</span>
+    }
+
+    <span class="code-keyword">void</span> Update()
+    {
+        <span class="code-comment">// Lire les touches directionnelles</span>
+        <span class="code-keyword">if</span> (Input.GetKey(KeyCode.UpArrow))    direction = <span class="code-type">Vector2</span>.up;
+        <span class="code-keyword">if</span> (Input.GetKey(KeyCode.DownArrow))  direction = <span class="code-type">Vector2</span>.down;
+        <span class="code-keyword">if</span> (Input.GetKey(KeyCode.LeftArrow))  direction = <span class="code-type">Vector2</span>.left;
+        <span class="code-keyword">if</span> (Input.GetKey(KeyCode.RightArrow)) direction = <span class="code-type">Vector2</span>.right;
+
+        timer += Time.deltaTime;
+        <span class="code-keyword">if</span> (timer >= vitesseMouvement)
+        {
+            timer = <span class="code-string">0f</span>;
+            Deplacer();
+        }
+    }
+
+    <span class="code-keyword">void</span> Deplacer()
+    {
+        <span class="code-comment">// Chaque segment prend la position du précédent (de la fin vers le début)</span>
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = segments.Count - <span class="code-string">1</span>; i > <span class="code-string">0</span>; i--)
+        {
+            segments[i].position = segments[i - <span class="code-string">1</span>].position;
+        }
+        <span class="code-comment">// La tête avance d'une case dans la direction</span>
+        transform.position = <span class="code-keyword">new</span> <span class="code-type">Vector3</span>(
+            Mathf.Round(transform.position.x) + direction.x,
+            Mathf.Round(transform.position.y) + direction.y,
+            <span class="code-string">0</span>
+        );
+    }
+
+    <span class="code-comment">// Appelé quand le serpent mange la nourriture</span>
+    <span class="code-keyword">public void</span> Grandir()
+    {
+        <span class="code-type">GameObject</span> nouveau = Instantiate(segmentPrefab, segments[segments.Count - <span class="code-string">1</span>].position, <span class="code-type">Quaternion</span>.identity);
+        segments.Add(nouveau.transform);
+    }
+}</div>` 
+    },
+    { 
+      title: "Créer la nourriture", 
+      subtitle: "Un point rouge qui apparaît aléatoirement", 
+      content: `<p class="explain">La nourriture est un carré rouge qui se téléporte à un endroit aléatoire quand le serpent le mange.</p>
+      <ul class="steps-list">
+        <li><span class="num">4.1</span><span>Crée un nouveau Sprite Square nommé <strong>"Food"</strong>, couleur rouge</span></li>
+        <li><span class="num">4.2</span><span>Ajoute un <strong>BoxCollider2D</strong> en cochant <strong>"Is Trigger"</strong></span></li>
+        <li><span class="num">4.3</span><span>Crée et attache le script <strong>"FoodSpawner"</strong> :</span></li>
+      </ul>
+      <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">FoodSpawner</span> : MonoBehaviour
+{
+    <span class="code-keyword">private</span> <span class="code-type">SnakeController</span> snake;
+
+    <span class="code-keyword">void</span> Start()
+    {
+        snake = FindObjectOfType&lt;<span class="code-type">SnakeController</span>&gt;();
+        Repositionner();
+    }
+
+    <span class="code-keyword">void</span> Repositionner()
+    {
+        <span class="code-comment">// Place la nourriture à une position aléatoire sur la grille</span>
+        transform.position = <span class="code-keyword">new</span> <span class="code-type">Vector3</span>(
+            Mathf.Round(Random.Range(-<span class="code-string">9f</span>, <span class="code-string">9f</span>)),
+            Mathf.Round(Random.Range(-<span class="code-string">9f</span>, <span class="code-string">9f</span>)),
+            <span class="code-string">0</span>
+        );
+    }
+
+    <span class="code-comment">// Quand le serpent touche la nourriture</span>
+    <span class="code-keyword">void</span> OnTriggerEnter2D(<span class="code-type">Collider2D</span> other)
+    {
+        <span class="code-keyword">if</span> (other.CompareTag(<span class="code-string">"Snake"</span>))
+        {
+            snake.Grandir();   <span class="code-comment">// Le serpent grandit</span>
+            Repositionner();   <span class="code-comment">// La nourriture se déplace</span>
+        }
+    }
+}</div>
+      <div class="tip-box">N'oublie pas d'ajouter le tag <strong>"Snake"</strong> à ton objet SnakeHead : dans l'Inspector → Tag → Add Tag → + → Snake</div>` 
+    },
+    { 
+      title: "Bordures et Game Over", 
+      subtitle: "Mourir en touchant les murs ou soi-même", 
+      content: `<p class="explain">On ajoute les murs et la détection de collision avec le propre corps du serpent.</p>
+      <ul class="steps-list">
+        <li><span class="num">5.1</span><span>Crée 4 objets <strong>Sprite Square</strong> étirés pour former les 4 murs (haut, bas, gauche, droite)</span></li>
+        <li><span class="num">5.2</span><span>Ajoute un <strong>BoxCollider2D</strong> à chacun</span></li>
+        <li><span class="num">5.3</span><span>Ajoute dans la fonction <strong>Deplacer()</strong> du SnakeController :</span></li>
+      </ul>
+      <div class="code-block"><span class="code-comment">// Vérifie si la tête touche son propre corps</span>
+<span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-string">1</span>; i < segments.Count; i++)
+{
+    <span class="code-keyword">if</span> (transform.position == segments[i].position)
+    {
+        GameOver();
+        <span class="code-keyword">return</span>;
+    }
+}
+
+<span class="code-keyword">void</span> GameOver()
+{
+    <span class="code-comment">// Recharge la scène pour recommencer</span>
+    UnityEngine.SceneManagement.SceneManager.LoadScene(
+        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+    );
+}</div>
+      <div class="success-box">Snake est jouable ! Flèches pour diriger, mange la nourriture rouge pour grandir.</div>` 
+    }
+ ],
+ bounce: [
+    { 
+      title: "Créer le projet Bounce", 
+      subtitle: "Un jeu de balle qui rebondit", 
+      content: `<p class="explain">Bounce est un jeu où une balle rebondit et tu contrôles une plateforme (raquette) pour l'empêcher de tomber — comme un Breakout ou Pong simplifié.</p>
+      <div class="tip-box">Crée un nouveau projet Unity 2D nommé <strong>"Bounce"</strong>. La caméra doit être en <strong>Orthographic, Size = 5</strong>.</div>
+      <div class="visual-diagram">
+        <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect width="280" height="200" fill="#04342C" rx="6"/>
+          <!-- Walls -->
+          <rect x="5" y="5" width="270" height="10" rx="2" fill="#0F6E56"/>
+          <rect x="5" y="5" width="10" height="190" rx="2" fill="#0F6E56"/>
+          <rect x="265" y="5" width="10" height="190" rx="2" fill="#0F6E56"/>
+          <!-- Blocks -->
+          <rect x="25" y="30" width="50" height="20" rx="3" fill="#D85A30"/>
+          <rect x="85" y="30" width="50" height="20" rx="3" fill="#534AB7"/>
+          <rect x="145" y="30" width="50" height="20" rx="3" fill="#BA7517"/>
+          <rect x="205" y="30" width="50" height="20" rx="3" fill="#1D9E75"/>
+          <rect x="25" y="58" width="50" height="20" rx="3" fill="#185FA5"/>
+          <rect x="85" y="58" width="50" height="20" rx="3" fill="#D85A30"/>
+          <rect x="145" y="58" width="50" height="20" rx="3" fill="#534AB7"/>
+          <rect x="205" y="58" width="50" height="20" rx="3" fill="#BA7517"/>
+          <!-- Ball -->
+          <circle cx="140" cy="120" r="8" fill="white"/>
+          <!-- Arrow indicating direction -->
+          <line x1="140" y1="120" x2="180" y2="90" stroke="#FAC775" stroke-width="1.5"/>
+          <polygon points="180,85 177,93 184,90" fill="#FAC775"/>
+          <!-- Paddle -->
+          <rect x="95" y="178" width="80" height="12" rx="4" fill="#9FE1CB"/>
+          <text x="140" y="175" text-anchor="middle" font-size="10" fill="#5DCAA5">← Raquette →</text>
+        </svg>
+      </div>` 
+    },
+    { 
+      title: "Créer la balle", 
+      subtitle: "Une balle blanche avec physique", 
+      num: 2, 
+      content: `
+          <p class="explain">La balle doit rebondir sur les murs, la raquette et les briques. Unity a un matériau physique spécial pour les rebonds parfaits.</p>
+          <ul class="steps-list">
+            <li><span class="num">2.1</span><span>Crée un objet <strong>2D Object → Sprite → Circle</strong>, nommé "Balle", couleur blanche</span></li>
+            <li><span class="num">2.2</span><span>Ajoute un <strong>Rigidbody2D</strong> : mets Gravity Scale = <strong>0</strong> (pas de gravité !)</span></li>
+            <li><span class="num">2.3</span><span>Dans Rigidbody2D → Constraints : coche <strong>Freeze Rotation Z</strong></span></li>
+            <li><span class="num">2.4</span><span>Ajoute un <strong>CircleCollider2D</strong></span></li>
+            <li><span class="num">2.5</span><span>Crée un <strong>Physics Material 2D</strong> : clic droit Assets → Create → 2D → Physics Material 2D</span></li>
+            <li><span class="num">2.6</span><span>Mets <strong>Friction = 0</strong> et <strong>Bounciness = 1</strong>, puis applique-le au CircleCollider2D</span></li>
+          </ul>
+          <div class="warn-box">Le Physics Material 2D avec Bounciness = 1 est la clé ! Sans ça, la balle perdrait de l'énergie à chaque rebond.</div>
+        `
+    },
+    { 
+      title: "Script de la balle", 
+      subtitle: "Lancer la balle et maintenir sa vitesse", 
+      num: 3, 
+      content: `
+          <p class="explain">Ce script lance la balle au démarrage et s'assure qu'elle garde toujours la même vitesse.</p>
+          <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">BallController</span> : MonoBehaviour
+{
+    <span class="code-keyword">public float</span> vitesse = <span class="code-string">5f</span>;
+    <span class="code-keyword">private</span> <span class="code-type">Rigidbody2D</span> rb;
+
+    <span class="code-keyword">void</span> Start()
+    {
+        rb = GetComponent&lt;<span class="code-type">Rigidbody2D</span>&gt;();
+        <span class="code-comment">// Lance la balle en diagonale au départ</span>
+        rb.linearVelocity = <span class="code-keyword">new</span> <span class="code-type">Vector2</span>(<span class="code-string">1f</span>, <span class="code-string">1f</span>).normalized * vitesse;
+    }
+
+    <span class="code-keyword">void</span> FixedUpdate()
+    {
+        <span class="code-comment">// Maintient toujours la même vitesse (les rebonds peuvent la changer légèrement)</span>
+        <span class="code-keyword">if</span> (rb.linearVelocity.magnitude != vitesse)
+        {
+            rb.linearVelocity = rb.linearVelocity.normalized * vitesse;
+        }
+    }
+
+    <span class="code-comment">// Si la balle tombe en bas = Game Over</span>
+    <span class="code-keyword">void</span> OnTriggerEnter2D(<span class="code-type">Collider2D</span> other)
+    {
+        <span class="code-keyword">if</span> (other.CompareTag(<span class="code-string">"DeathZone"</span>))
+        {
+            Debug.Log(<span class="code-string">"Perdu !"</span>);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(<span class="code-string">0</span>);
+        }
+    }
+}</div>
+        `
+    },
+    { 
+      title: "Créer la raquette", 
+      subtitle: "Contrôle à la souris ou au clavier", 
+      num: 4, 
+      content: `
+          <p class="explain">La raquette se déplace horizontalement. On peut la contrôler avec la <span class="bold">souris</span> ou les <span class="bold">touches fléchées</span>.</p>
+          <ul class="steps-list">
+            <li><span class="num">4.1</span><span>Crée un Sprite Square très allongé : Scale <strong>X=3, Y=0.3</strong>, nommé "Raquette", couleur verte</span></li>
+            <li><span class="num">4.2</span><span>Place-le en bas : Position <strong>Y = -4</strong></span></li>
+            <li><span class="num">4.3</span><span>Ajoute un <strong>BoxCollider2D</strong> et un <strong>Rigidbody2D</strong> (Gravity Scale = 0, Is Kinematic = true)</span></li>
+          </ul>
+          <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">PaddleController</span> : MonoBehaviour
+{
+    <span class="code-keyword">public float</span> vitesse = <span class="code-string">8f</span>;
+    <span class="code-keyword">public float</span> limiteX = <span class="code-string">3.5f</span>; <span class="code-comment">// Limites gauche/droite</span>
+
+    <span class="code-keyword">void</span> Update()
+    {
+        <span class="code-comment">// Option 1 : Contrôle à la souris</span>
+        <span class="code-type">Vector3</span> positionSouris = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        <span class="code-keyword">float</span> x = Mathf.Clamp(positionSouris.x, -limiteX, limiteX);
+        transform.position = <span class="code-keyword">new</span> <span class="code-type">Vector3</span>(x, transform.position.y, <span class="code-string">0</span>);
+
+        <span class="code-comment">// Option 2 : Contrôle au clavier (décommente pour utiliser)</span>
+        <span class="code-comment">// float h = Input.GetAxis("Horizontal");</span>
+        <span class="code-comment">// transform.Translate(Vector2.right * h * vitesse * Time.deltaTime);</span>
+    }
+}</div>
+        `
+    },
+    { 
+      title: "Ajouter les briques à casser", 
+      subtitle: "Des blocs colorés qui disparaissent", 
+      num: 5, 
+      content: `
+          <p class="explain">Les briques sont des objets qui se détruisent quand la balle les touche. On crée un <span class="bold">Prefab</span> de brique et on les place en grille.</p>
+          <ul class="steps-list">
+            <li><span class="num">5.1</span><span>Crée un Sprite Square nommé <strong>"Brique"</strong>, ajoute un <strong>BoxCollider2D</strong></span></li>
+            <li><span class="num">5.2</span><span>Attache ce script simple :</span></li>
+          </ul>
+          <div class="code-block"><span class="code-keyword">using</span> UnityEngine;
+
+<span class="code-keyword">public class</span> <span class="code-type">Brique</span> : MonoBehaviour
+{
+    <span class="code-keyword">public int</span> vies = <span class="code-string">1</span>; <span class="code-comment">// Certaines briques résistent plus</span>
+
+    <span class="code-keyword">void</span> OnCollisionEnter2D(<span class="code-type">Collision2D</span> col)
+    {
+        vies--;
+        <span class="code-keyword">if</span> (vies <= <span class="code-string">0</span>)
+        {
+            Destroy(gameObject); <span class="code-comment">// La brique explose !</span>
+        }
+        <span class="code-keyword">else</span>
+        {
+            <span class="code-comment">// Change la couleur pour montrer qu'elle est abîmée</span>
+            GetComponent&lt;<span class="code-type">SpriteRenderer</span>&gt;().color = <span class="code-type">Color</span>.red;
+        }
+    }
+}</div>
+          <ul class="steps-list" style="margin-top:8px;">
+            <li><span class="num">5.3</span><span>Transforme la brique en <strong>Prefab</strong></span></li>
+            <li><span class="num">5.4</span><span>Place manuellement des briques en grille en haut de la scène (copie-colle avec Ctrl+D)</span></li>
+            <li><span class="num">5.5</span><span>Varie les couleurs en changeant la couleur du SpriteRenderer dans l'Inspector</span></li>
+          </ul>
+          <div class="success-box">Ton jeu Bounce est prêt ! Raquette à la souris, balle qui rebondit, briques à détruire.</div>
+          <div class="tip-box">Pour aller plus loin : ajoute un score (+10 par brique), des sons (AudioSource), et une condition de victoire quand toutes les briques sont détruites.</div>
+        `
+    }
+ ]
+}
+
+// Affiche la fenêtre pop-up de bienvenue au chargement de la page
+alert("Bienvenue dans l'univert de Bably. Es-tu prêt à te lancer dans cette aventure excitante ?");
+function save(){ localStorage.setItem('unityProgress',JSON.stringify(progress)) }
+
+function updateHUD(){
+ document.getElementById('xp').style.width=progress.xp+'%'
+ document.getElementById('hearts').innerText='❤️'.repeat(progress.life)
+}
+
+function render(){
+ const list = games[progress.game];
+ const data = list[progress.step];
+ 
+ document.getElementById('title').innerText = data.title;
+ document.getElementById('content').innerHTML = `
+    <span class="stepSubtitle">${data.subtitle}</span>
+    ${data.content}
+ `;
+ document.getElementById('reward').innerText = '⭐'.repeat(progress.step+1);
+ 
+ document.getElementById('btnPrev').disabled = (progress.step === 0);
+ document.getElementById('btnNext').innerText = (progress.step === list.length - 1) ? "Mission accomplie ! 🎉" : "Etape suivante ➡";
+
+ updateHUD();save();
+ window.scrollTo(0,0);
+}
+
+function nextStep(){
+ const list=games[progress.game]
+ if(progress.step<list.length-1){
+   progress.step++;
+   progress.xp+=5;
+   if(progress.xp>100)progress.xp=100;
+ }
+ render();
+}
+
+function prevStep(){
+ if(progress.step>0)progress.step--;
+ render();
+}
+
+function switchGame(g){
+ progress.game=g;progress.step=0;
+ document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+ event.target.classList.add('active');
+ render();
+}
+
+render();
+</script>
+
+</body>
+</html>
